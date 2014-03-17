@@ -1,72 +1,94 @@
-$(function(){
+/* 
+	Slide object is a combination of text and a detached background image 
+	Note: Had to be made this way to support the parallax effect
+*/
+var Slide = function(el, bg) {
+	this.el = el;
+	this.bg = bg;
+	this.over_z_index = 2;
+	this.under_z_index = 1;
+}
 
-	var Slider = Backbone.Model.extend({
+Slide.prototype.hide = function() {
+	$(this.el).hide(0);
+	$(this.bg).hide(0);
+};
 
-		initialize: function() {
-			this.slides = []; //list of elements to fade
-			this.slide = -1; //current visible slide
-		},
+Slide.prototype.fadeIn = function(callback) {
+	$(this.bg).fadeIn();
+	$(this.el).fadeIn(function() {
+		callback();
+	});
+}
 
-		addSlide: function(slide) {
-			//add a slide
-			this.slides.push(slide);
-			//the last slide is the current visible slide
-			this.slide++;
-		},
+Slide.prototype.moveUp = function() {
+	$(this.el).css('z-index', this.over_z_index);
+	$(this.bg).css('z-index', this.over_z_index);
+};
 
-		last: function(){
-			return this.slides.length-1;
-		},
+Slide.prototype.moveDown = function() {
+	$(this.el).css('z-index', this.under_z_index);
+	$(this.bg).css('z-index', this.under_z_index);
+};
 
-		//this function decrements the indexes like (3,2,1,0,3,2,1,0,...)
-		next: function(){
-			//check if we even have slides
-			if(this.slides.length > 1){
-				//compute the next slide index
-				if((this.slide-1) >= 0){
-					this.slide--;
-					//trigger the event to perform the actual animation
-					this.trigger('change:slide', this, this.slide, this.slide+1);
-				}else {
-					this.slide = this.slides.length-1;
-					this.trigger('change:slide', this, this.slide, 0);
-				}
-			}
+/* Fader class that will cycle through slides */
+var Fader = function(slides_selector, slides_bg_selector, delay) {
+	this.slides_selector = slides_selector;
+	this.slides_bg_selector = slides_bg_selector;
+	this.slides = [];
+	this.delay = delay;
+	this.current_slide = -1;
+
+	this.init(this);
+}
+
+Fader.prototype.init = function() {
+	var self = this;
+	//create all the Slide objects
+	$(self.slides_selector).each(function(i, el){
+		self.slides.push(new Slide(el, $(self.slides_bg_selector)[i]));
+		self.current_slide++; //increment the current slide index thats visible
+	});
+};
+
+Fader.prototype.next = function() {
+	if(this.slides.length > 1){
+		//compute the next slide index
+		if((this.current_slide-1) >= 0){
+			this.current_slide--;
+			//hide the 
+			this.transition(this.slides[this.current_slide], this.slides[this.current_slide+1]);
+		}else {
+			this.current_slide = this.slides.length-1;
+			this.transition(this.slides[this.current_slide], this.slides[0]);
 		}
+	}
+};
+
+Fader.prototype.transition = function(slide, prev_slide) {
+	//first make the item invisible 
+	slide.hide();
+	//make this slide visible
+	slide.moveUp();
+	slide.fadeIn(function() {
+		//set the prev slide back to z-index 1
+		prev_slide.moveDown();
+		//make prev slide invisible
+		prev_slide.hide();
+		//make this slide z-index 1
+		slide.moveDown();
 	});
+};
 
-	//initialize the slider
-	var slider = new Slider;
-
-	//listen for the change event
-	slider.on('change:slide', function(model, index, prev) {
-
-		console.log("Fading in: " + index);
-		//first make the item invisible 
-		$('#slides li:eq(' + index + ')').hide(0);
-		//make this slide visible
-		$('#slides li:eq(' + index + ')').css('z-index', 2).fadeIn(function(){
-			//set the prev slide back to z-index 1
-			$('#slides li:eq(' + prev + ')').css('z-index', 1);
-			//make prev slide invisible
-			$('#slides li:eq(' + prev + ')').hide(0);
-			//make this slide z-index 1
-			$(this).css('z-index', 1);
-
-			console.log("Prev: " + prev);
-			
-		});
-		
-	});
-
-	//use jquery to loop over all slides and add them to the slider
-	$("#slides li").each(function(index, element) {
-		slider.addSlide(element);
-	});
-
-	//fade in each slide every 5sec
+Fader.prototype.start = function() {
+	var self = this;
+	console.log(this);
 	setInterval(function(){
-		slider.next();
-	}, 5000);
-	
-});
+		self.next();
+	}, self.delay);
+};
+
+window.onload = function(){
+	var fader = new Fader('#slides li', '#background-images li', 4000);
+	fader.start();
+};
