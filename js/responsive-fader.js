@@ -87,8 +87,3 @@ Fader.prototype.start = function() {
 		self.next();
 	}, self.delay);
 };
-
-window.onload = function(){
-	var fader = new Fader('#slides li', '#background-images li', 4000);
-	fader.start();
-};
