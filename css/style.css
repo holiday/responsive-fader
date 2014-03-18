@@ -15,9 +15,6 @@ ul {
 }
 
 section#fader ul#background-images li {
-	width: 100%;
-	height: 100%;
-	background-position: center;
 }
 
 section#fader ul#slides li {
@@ -33,19 +30,6 @@ section#fader ul#slides li:last-child {
 	display: inline;
 }
 
-section#fader ul#background-images li.slide-1-bg {
-	background-image: url(../images/bg1.jpg);
-}
-
-section#fader ul#background-images li.slide-2-bg {
-	background-image: url(../images/bg2.jpg);
-}
-
-
-section#fader ul#background-images li.slide-3-bg {
-	background-image: url(../images/bg3.jpg);
-}
-
 section#fader ul#background-images li{
 	position: absolute;
 	top: 0;
@@ -55,9 +39,8 @@ section#fader ul#background-images li{
 	-moz-background-size: cover;
 	-o-background-size: cover;
 	background-size: cover;
+	background-position: center;
 	padding: 0;
 	margin: 0;
-	height: 100%;
-	width: 100%;
 	z-index: 1;
 }
