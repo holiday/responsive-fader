@@ -1,21 +1,14 @@
-/* 
-	Slide object is a combination of text and a detached background image 
-	Note: Had to be made this way to support the parallax effect
-*/
-var Slide = function(el, bg) {
+function Slide(el) {
 	this.el = el;
-	this.bg = bg;
 	this.over_z_index = 2;
 	this.under_z_index = 1;
 }
 
 Slide.prototype.hide = function() {
 	$(this.el).hide(0);
-	$(this.bg).hide(0);
 };
 
 Slide.prototype.fadeIn = function(callback) {
-	$(this.bg).fadeIn();
 	$(this.el).fadeIn(function() {
 		callback();
 	});
@@ -23,10 +16,42 @@ Slide.prototype.fadeIn = function(callback) {
 
 Slide.prototype.moveUp = function() {
 	$(this.el).css('z-index', this.over_z_index);
-	$(this.bg).css('z-index', this.over_z_index);
 };
 
 Slide.prototype.moveDown = function() {
+	$(this.el).css('z-index', this.under_z_index);
+};
+
+/**
+ *	Extended Slide to contain a detached background component
+ */
+function BgSlide(el, bg) {
+	Slide.call(this, el);
+	this.bg = bg;
+}
+
+BgSlide.prototype = new Slide();
+
+BgSlide.prototype.constructor = BgSlide;
+
+BgSlide.prototype.hide = function() {
+	$(this.el).hide(0);
+	$(this.bg).hide(0);
+};
+
+BgSlide.prototype.fadeIn = function(callback) {
+	$(this.bg).fadeIn();
+	$(this.el).fadeIn(function() {
+		callback();
+	});
+}
+
+BgSlide.prototype.moveUp = function() {
+	$(this.el).css('z-index', this.over_z_index);
+	$(this.bg).css('z-index', this.over_z_index);
+};
+
+BgSlide.prototype.moveDown = function() {
 	$(this.el).css('z-index', this.under_z_index);
 	$(this.bg).css('z-index', this.under_z_index);
 };
@@ -38,7 +63,6 @@ var Fader = function(slides_selector, slides_bg_selector, delay) {
 	this.slides = [];
 	this.delay = delay;
 	this.current_slide = -1;
-
 	this.init(this);
 }
 
@@ -46,7 +70,12 @@ Fader.prototype.init = function() {
 	var self = this;
 	//create all the Slide objects
 	$(self.slides_selector).each(function(i, el){
-		self.slides.push(new Slide(el, $(self.slides_bg_selector)[i]));
+		if(self.slides_bg_selector != null){
+			self.slides.push(new BgSlide(el, $(self.slides_bg_selector)[i]));
+		}else{
+			self.slides.push(new Slide(el));
+		}
+		
 		self.current_slide++; //increment the current slide index thats visible
 	});
 };

@@ -1,4 +1,4 @@
-section#fader ul#slides li {
+.fader ul.slides li {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -7,11 +7,11 @@ section#fader ul#slides li {
 	z-index: 1;
 }
 
-section#fader ul#slides li:last-child {
+.fader ul.slides li:last-child {
 	display: inline;
 }
 
-section#fader ul#background-images li{
+.fader ul.background-images li{
 	position: absolute;
 	top: 0;
 	left: 0;
