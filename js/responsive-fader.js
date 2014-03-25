@@ -111,7 +111,6 @@ Fader.prototype.transition = function(slide, prev_slide) {
 
 Fader.prototype.start = function() {
 	var self = this;
-	console.log(this);
 	setInterval(function(){
 		self.next();
 	}, self.delay);
